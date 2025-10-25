@@ -1,26 +1,29 @@
 "use client";
 
-import Link from "next/link";
-import { noteTags } from "@/types/note";
+import { useQuery } from "@tanstack/react-query";
+import { getCategories, Category } from "@/lib/api";
 import css from "./SidebarNotes.module.css";
 
-const SidebarNotes = () => {
+export default function SidebarNotes() {
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useQuery<Category[]>({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
+
+  if (isLoading) return <p>Loading categories...</p>;
+  if (error) return <p>Error loading categories</p>;
+
   return (
-    <ul className={css.menuList}>
-      <li className={css.menuItem}>
-        <Link href="/notes/filter/all" className={css.menuLink}>
-          All notes
-        </Link>
-      </li>
-      {noteTags.map((tag) => (
-        <li key={tag} className={css.menuItem}>
-          <Link href={`/notes/filter/${tag}`} className={css.menuLink}>
-            {tag}
-          </Link>
+    <ul className={css.sidebarList}>
+      {categories?.map((cat) => (
+        <li key={cat.id} className={css.sidebarItem}>
+          {cat.name}
         </li>
       ))}
     </ul>
   );
-};
-
-export default SidebarNotes;
+}

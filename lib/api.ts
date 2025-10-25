@@ -5,7 +5,7 @@ import type { CreateNoteData, Note } from "../types/note";
 interface CreateNoteResponse {
   note: Note;
 }
-interface FetchNotesResponse {
+export interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
 }
@@ -67,5 +67,12 @@ export type Category = {
 
 export const getCategories = async () => {
   const res = await axios<Category[]>("/categories");
+  return res.data;
+};
+
+export const getNotes = async (categoryId?: string) => {
+  const res = await axios.get<FetchNotesResponse>("/notes", {
+    params: { categoryId },
+  });
   return res.data;
 };

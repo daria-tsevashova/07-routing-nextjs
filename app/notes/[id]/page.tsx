@@ -1,28 +1,18 @@
-import { fetchNoteById } from "@/lib/api";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
-import React from "react";
+import Modal from "@/components/Modal/Modal";
 import NoteDetails from "./NoteDetails.client";
+import { fetchNoteById } from "@/lib/api";
+import { Note } from "@/types/note";
 
-interface NotesDetailsProps {
-  params: Promise<{ id: string }>;
+interface Props {
+  params: { id: string };
 }
 
-const NotesDetails = async ({ params }: NotesDetailsProps) => {
-  const { id } = await params;
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: ["note", id],
-    queryFn: () => fetchNoteById(id),
-  });
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetails />
-    </HydrationBoundary>
-  );
-};
+export default async function NotePage({ params }: Props) {
+  const note: Note = await fetchNoteById(params.id);
 
-export default NotesDetails;
+  return (
+    <Modal onClose={() => history.back()}>
+      <NoteDetails note={note} />
+    </Modal>
+  );
+}

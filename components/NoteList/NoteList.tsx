@@ -1,25 +1,35 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import css from "./NoteList.module.css";
 import { deleteNote } from "@/lib/api";
-import type { Note } from "../../types/note";
-import Link from "next/link";
+import type { Note } from "@/types/note";
+import css from "./NoteList.module.css";
+import { useRouter } from "next/navigation";
 
 interface NoteListProps {
   notes: Note[];
 }
 
-const NoteList = ({ notes }: NoteListProps) => {
+export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
+  const router = useRouter();
+
+  // Мутація видалення нотатки
   const mutation = useMutation({
     mutationFn: (noteId: string) => deleteNote(noteId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["notes"], exact: false });
     },
+    onError: (err) => console.error(err),
   });
 
-  const handleClick = (noteId: string) => {
-    mutation.mutate(noteId);
+  const handleDelete = (noteId: string) => mutation.mutate(noteId);
+
+  // Відкриття модалки з нотаткою SPA-подібно
+  const openNote = (id: string) => {
+    router.push(`/@modal/notes/${id}`, { scroll: false });
   };
+
   return (
     <ul className={css.list}>
       {notes.map((note) => (
@@ -28,12 +38,16 @@ const NoteList = ({ notes }: NoteListProps) => {
           <p className={css.content}>{note.content}</p>
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
-            <Link href={`/notes/${note.id}`} className={css.link}>
+
+            {/* Кнопка відкриття модалки */}
+            <button className={css.link} onClick={() => openNote(note.id)}>
               View details
-            </Link>
+            </button>
+
+            {/* Кнопка видалення нотатки */}
             <button
               className={css.button}
-              onClick={() => handleClick(note.id!)}
+              onClick={() => handleDelete(note.id)}
             >
               Delete
             </button>
@@ -42,6 +56,4 @@ const NoteList = ({ notes }: NoteListProps) => {
       ))}
     </ul>
   );
-};
-
-export default NoteList;
+}
