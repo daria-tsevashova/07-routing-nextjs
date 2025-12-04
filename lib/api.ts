@@ -56,3 +56,28 @@ export const fetchNoteById = async (noteId: string): Promise<Note> => {
   const response = await apiClient.get<Note>(`/notes/${noteId}`);
   return response.data;
 };
+
+export type Category = {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const getCategories = async () => {
+  const res = await apiClient.get<Category[]>("/categories");
+  return res.data;
+};
+
+interface NoteListResponse {
+  notes: Note[];
+  totalPages?: number;
+}
+
+export const getNotes = async (categoryId?: string) => {
+  const res = await apiClient.get<NoteListResponse>("/notes", {
+    params: { categoryId },
+  });
+  return res.data;
+};
