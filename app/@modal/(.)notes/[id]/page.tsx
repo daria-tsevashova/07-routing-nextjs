@@ -1,5 +1,5 @@
 import { fetchNoteById } from "@/lib/api";
-import NotePreviewClient from "@/components/NotePreview/NotePreview";
+import NotePreviewClient from "./NotePreview";
 import {
   dehydrate,
   HydrationBoundary,
