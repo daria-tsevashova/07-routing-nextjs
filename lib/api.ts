@@ -35,10 +35,11 @@ const createNote = async (
 const fetchNotes = async (
   search?: string,
   page?: number,
-  perPage?: number
+  perPage?: number,
+  tags?: string
 ): Promise<FetchNotesResponse> => {
   const response = await apiClient.get<FetchNotesResponse>("/notes", {
-    params: { search, page, perPage },
+    params: { search, page, perPage, tags },
   });
   return response.data;
 };

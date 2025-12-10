@@ -1,7 +1,7 @@
 "use client";
 
 import css from "./page.module.css";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { useDebounce } from "use-debounce";
 import { useState } from "react";
@@ -13,19 +13,30 @@ import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import Pagination from "@/components/Pagination/Pagination";
 import SearchBox from "@/components/SearchBox/SearchBox";
+import type { NoteTag } from "@/types/note";
 
-const Notes = () => {
+interface NotesClientProps {
+  tag: NoteTag | "all";
+}
+
+const NotesClient = ({ tag }: NotesClientProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [debounceTerm] = useDebounce(query, 500);
+  const [debouncedTerm] = useDebounce(query, 500);
   const [currentPage, setCurrentPage] = useState(1);
 
   const onOpen = () => setIsModalOpen(true);
   const onClose = () => setIsModalOpen(false);
 
-  const { error, data, isLoading, isSuccess } = useQuery({
-    queryKey: ["notes", debounceTerm, currentPage],
-    queryFn: () => fetchNotes(debounceTerm, currentPage, 12),
+  const { data, error, isLoading, isSuccess } = useQuery({
+    queryKey: ["notes", debouncedTerm, currentPage, tag],
+    queryFn: () =>
+      fetchNotes(
+        debouncedTerm,
+        currentPage,
+        12,
+        tag !== "all" ? tag : undefined
+      ),
     placeholderData: keepPreviousData,
   });
 
@@ -40,6 +51,7 @@ const Notes = () => {
 
       <header className={css.toolbar}>
         <SearchBox onChange={onChange} value={query} />
+
         {isSuccess && data.totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
@@ -47,13 +59,16 @@ const Notes = () => {
             totalPages={data.totalPages}
           />
         )}
+
         <button className={css.button} onClick={onOpen}>
           Create note +
         </button>
       </header>
+
       {isLoading && <Loader />}
       {error && <ErrorMessage />}
-      {data && data?.notes.length > 0 && <NoteList notes={data.notes} />}
+      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
+
       {isModalOpen && (
         <Modal onClose={onClose}>
           <NoteForm onClose={onClose} />
@@ -63,4 +78,4 @@ const Notes = () => {
   );
 };
 
-export default Notes;
+export default NotesClient;
