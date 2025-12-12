@@ -31,12 +31,7 @@ const NotesClient = ({ tag }: NotesClientProps) => {
   const { data, error, isLoading, isSuccess } = useQuery({
     queryKey: ["notes", debouncedTerm, currentPage, tag],
     queryFn: () =>
-      fetchNotes(
-        debouncedTerm,
-        currentPage,
-        12,
-        tag !== "all" ? tag : undefined
-      ),
+      fetchNotes(debouncedTerm, currentPage, tag !== "all" ? tag : undefined),
     placeholderData: keepPreviousData,
   });
 

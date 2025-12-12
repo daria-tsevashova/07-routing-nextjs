@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AxiosResponse } from "axios";
-import type { CreateNoteData, Note } from "../types/note";
+import type { CreateNoteData, Note, NoteTag } from "../types/note";
 
 interface CreateNoteResponse {
   note: Note;
@@ -35,11 +35,10 @@ const createNote = async (
 const fetchNotes = async (
   search?: string,
   page?: number,
-  perPage?: number,
-  tags?: string
+  tag?: NoteTag
 ): Promise<FetchNotesResponse> => {
   const response = await apiClient.get<FetchNotesResponse>("/notes", {
-    params: { search, page, perPage, tags },
+    params: { search, page, tag },
   });
   return response.data;
 };
@@ -56,29 +55,4 @@ export { createNote, fetchNotes, deleteNote };
 export const fetchNoteById = async (noteId: string): Promise<Note> => {
   const response = await apiClient.get<Note>(`/notes/${noteId}`);
   return response.data;
-};
-
-export type Category = {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export const getCategories = async () => {
-  const res = await apiClient.get<Category[]>("/categories");
-  return res.data;
-};
-
-interface NoteListResponse {
-  notes: Note[];
-  totalPages?: number;
-}
-
-export const getNotes = async (categoryId?: string) => {
-  const res = await apiClient.get<NoteListResponse>("/notes", {
-    params: { categoryId },
-  });
-  return res.data;
 };
